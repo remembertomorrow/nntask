@@ -1,0 +1,8 @@
+server:
+  servlet:
+    context-path: /api/v1
+
+# spring
+spring:
+  application:
+    name: nntask
