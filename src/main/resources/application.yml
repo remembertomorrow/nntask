@@ -12,3 +12,6 @@ wallets:
   supported-currencies: ${SUPPORTED_CURRENCIES:PLN,USD}
 conversion:
   base-currency: ${BASE_CURRENCY:PLN}
+integration:
+  nbp:
+    url: ${NBP_URL:https://api.nbp.pl/api/exchangerates/rates}

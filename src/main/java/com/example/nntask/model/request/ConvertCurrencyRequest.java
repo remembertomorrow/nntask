@@ -2,13 +2,12 @@ package com.example.nntask.model.request;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
-import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.UUID;
 
-@Getter
+@Data
 public class ConvertCurrencyRequest {
 
     private UUID accountId;

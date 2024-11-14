@@ -4,6 +4,7 @@ import com.example.nntask.model.request.CreateAccountRequest;
 import com.example.nntask.model.response.CreateAccountResponse;
 import com.example.nntask.model.response.GetAccountResponse;
 import com.example.nntask.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class AccountController {
 
     @PostMapping
     public CreateAccountResponse createAccount(
-            @RequestBody CreateAccountRequest request
+            @Valid @RequestBody CreateAccountRequest request
     ) {
         log.info("Initiating request to create account, req: {}", request);
         return accountService.createAccount(request);
