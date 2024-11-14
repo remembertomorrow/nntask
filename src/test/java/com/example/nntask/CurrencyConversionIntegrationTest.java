@@ -1,6 +1,7 @@
 package com.example.nntask;
 
 import com.example.nntask.fixture.FixtureBuilder;
+import com.example.nntask.model.dto.WalletDto;
 import com.example.nntask.model.entity.Wallet;
 import com.example.nntask.model.request.ConvertCurrencyRequest;
 import com.example.nntask.model.response.GetAccountResponse;
@@ -87,11 +88,11 @@ class CurrencyConversionIntegrationTest {
         String content = result.getResponse().getContentAsString();
         GetAccountResponse response = objectMapper.readValue(content, GetAccountResponse.class);
 
-        List<Wallet> wallets = response.getWallets();
+        List<WalletDto> wallets = response.getWallets();
         assertThat(wallets).isNotNull();
 
-        Wallet plnWallet = chooseWalletByCurrency(wallets, PLN);
-        Wallet usdWallet = chooseWalletByCurrency(wallets, USD);
+        WalletDto plnWallet = chooseWalletByCurrency(wallets, PLN);
+        WalletDto usdWallet = chooseWalletByCurrency(wallets, USD);
 
         // Simply subtracting 100 from 1000 PLN available at PLN wallet = 900
         assertThat(plnWallet.getAmount(), Matchers.comparesEqualTo(BigDecimal.valueOf(900)));
@@ -120,11 +121,11 @@ class CurrencyConversionIntegrationTest {
         String content = result.getResponse().getContentAsString();
         GetAccountResponse response = objectMapper.readValue(content, GetAccountResponse.class);
 
-        List<Wallet> wallets = response.getWallets();
+        List<WalletDto> wallets = response.getWallets();
         assertThat(wallets).isNotNull();
 
-        Wallet plnWallet = chooseWalletByCurrency(wallets, PLN);
-        Wallet usdWallet = chooseWalletByCurrency(wallets, USD);
+        WalletDto plnWallet = chooseWalletByCurrency(wallets, PLN);
+        WalletDto usdWallet = chooseWalletByCurrency(wallets, USD);
 
         // Simply subtracting 100 from 200 USD available at USD wallet = 100
         assertThat(usdWallet.getAmount(), Matchers.comparesEqualTo(BigDecimal.valueOf(100)));
@@ -135,8 +136,8 @@ class CurrencyConversionIntegrationTest {
     }
 
 
-    private Wallet chooseWalletByCurrency(List<Wallet> wallets, String currencyCode) {
-        return wallets.stream().filter(w -> w.getWalletCurrency().getCurrencyCode().equals(currencyCode))
+    private WalletDto chooseWalletByCurrency(List<WalletDto> wallets, String currencyCode) {
+        return wallets.stream().filter(w -> w.getWalletCurrency().equals(currencyCode))
                 .toList().getFirst();
     }
 
@@ -146,6 +147,17 @@ class CurrencyConversionIntegrationTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<WalletDto> mapWalletsToDtos(List<Wallet> wallets) {
+        return wallets.stream().map(w -> {
+            WalletDto dto = new WalletDto();
+            dto.setWalletId(w.getId());
+            dto.setWalletCurrency(w.getWalletCurrency().getCurrencyCode());
+            dto.setAmount(w.getAmount());
+            dto.setAccountId(w.getAccount().getId());
+            return dto;
+        }).toList();
     }
 
 }
