@@ -1,14 +1,15 @@
 package com.example.nntask.model.response;
 
-import com.example.nntask.model.entity.Wallet;
+import com.example.nntask.model.dto.WalletDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Data
-public class GetCurrencyAccountResponse {
+@AllArgsConstructor
+public class CreateAccountResponse {
 
     private UUID accountId;
 
@@ -16,6 +17,6 @@ public class GetCurrencyAccountResponse {
 
     private String lastName;
 
-    private List<Wallet> wallets = new ArrayList<>();
+    private List<WalletDto> wallets;
 
 }

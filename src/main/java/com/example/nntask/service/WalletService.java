@@ -1,7 +1,7 @@
 package com.example.nntask.service;
 
 import com.example.nntask.model.dto.WalletDto;
-import com.example.nntask.model.entity.CurrencyAccount;
+import com.example.nntask.model.entity.Account;
 import com.example.nntask.model.entity.Wallet;
 import com.example.nntask.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +19,7 @@ public class WalletService {
     private final WalletRepository walletRepository;
 
 
-    public Wallet buildWallet(Currency currency, BigDecimal initialBalance, CurrencyAccount account) {
+    public Wallet buildWallet(Currency currency, BigDecimal initialBalance, Account account) {
         Wallet defaultWallet = new Wallet();
         defaultWallet.setWalletCurrency(currency);
         defaultWallet.setAmount(initialBalance);

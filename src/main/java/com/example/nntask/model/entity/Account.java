@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CurrencyAccount extends BaseEntity {
+public class Account extends BaseEntity {
 
     @Column(name = "first_name")
     private String firstName;

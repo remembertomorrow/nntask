@@ -1,23 +1,17 @@
 package com.example.nntask.service;
 
 import com.example.nntask.exception.CurrencyConversionException;
-import com.example.nntask.integration.NbpFeignClient;
-import com.example.nntask.model.entity.CurrencyAccount;
+import com.example.nntask.model.entity.Account;
 import com.example.nntask.model.entity.Wallet;
 import com.example.nntask.model.request.ConvertCurrencyRequest;
-import com.example.nntask.model.response.ConvertCurrencyResponse;
-import com.example.nntask.model.response.GetCurrencyAccountResponse;
-import com.example.nntask.model.response.NbpExchangeRateResponse;
+import com.example.nntask.model.response.GetAccountResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -28,12 +22,12 @@ public class CurrencyConversionService {
     @Value("${wallets.supported-currencies}")
     private String supportedCurrencies;
 
-    private final CurrencyAccountService currencyAccountService;
+    private final AccountService accountService;
 
     private final WalletTransactionService walletTransactionService;
 
 
-    public GetCurrencyAccountResponse convertCurrency(ConvertCurrencyRequest req) {
+    public GetAccountResponse convertCurrency(ConvertCurrencyRequest req) {
 
         boolean isPlnOrigin = req.getOriginCurrency().equals(PLN);
         String otherCurrencyCode = isPlnOrigin ? req.getTargetCurrency() : req.getOriginCurrency();
@@ -49,16 +43,16 @@ public class CurrencyConversionService {
                     String.format("Currency is not supported. Supported currencies are: %s", supportedCurrencies));
         }
 
-        CurrencyAccount account = currencyAccountService.findCurrencyAccount(req.getAccountId());
+        Account account = accountService.findAccount(req.getAccountId());
         Wallet plnWallet = chooseWalletByCurrency(account, PLN);
         Wallet otherWallet = chooseWalletByCurrency(account, otherCurrencyCode);
         walletTransactionService.moveWalletsFunds(plnWallet, otherWallet, req);
 
-        return currencyAccountService.mapAccountToGetAccountResponse(account);
+        return accountService.mapAccountToGetAccountResponse(account);
     }
 
 
-    private Wallet chooseWalletByCurrency(CurrencyAccount account, String currencyCode) {
+    private Wallet chooseWalletByCurrency(Account account, String currencyCode) {
         List<Wallet> wallets = account.getWallets();
         if(wallets.isEmpty()) {
             throw new CurrencyConversionException("Account doesn't have any wallets");

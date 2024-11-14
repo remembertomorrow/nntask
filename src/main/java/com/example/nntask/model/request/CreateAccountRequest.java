@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class CreateCurrencyAccountRequest {
+public class CreateAccountRequest {
 
     private String firstName;
 

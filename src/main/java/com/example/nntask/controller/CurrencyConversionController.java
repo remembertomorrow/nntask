@@ -1,8 +1,7 @@
 package com.example.nntask.controller;
 
-import com.example.nntask.model.entity.CurrencyAccount;
 import com.example.nntask.model.request.ConvertCurrencyRequest;
-import com.example.nntask.model.response.GetCurrencyAccountResponse;
+import com.example.nntask.model.response.GetAccountResponse;
 import com.example.nntask.service.CurrencyConversionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,7 @@ public class CurrencyConversionController {
 
 
     @PostMapping
-    public GetCurrencyAccountResponse convertCurrency(
+    public GetAccountResponse convertCurrency(
             @RequestBody ConvertCurrencyRequest request
     ) {
         log.info("Initiating request to convert currencies: {}", request);

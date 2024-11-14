@@ -27,6 +27,6 @@ public class Wallet extends BaseEntity {
     @JsonBackReference
     @ManyToOne
     @JoinColumn(name="account_id", nullable=false)
-    private CurrencyAccount account;
+    private Account account;
 
 }
