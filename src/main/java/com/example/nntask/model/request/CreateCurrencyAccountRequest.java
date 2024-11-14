@@ -1,6 +1,5 @@
 package com.example.nntask.model.request;
 
-import com.example.nntask.model.Money;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -12,6 +11,6 @@ public class CreateCurrencyAccountRequest {
 
     private String lastName;
 
-    private Money initialBalance;
+    private BigDecimal initialBalance;
 
 }

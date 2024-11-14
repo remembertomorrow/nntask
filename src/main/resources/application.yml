@@ -6,3 +6,7 @@ server:
 spring:
   application:
     name: nntask
+
+# Other
+wallets:
+  supported-currencies: ${SUPPORTED_CURRENCIES:PLN,USD}
