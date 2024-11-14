@@ -6,6 +6,7 @@ import com.example.nntask.model.request.CreateAccountRequest;
 import com.example.nntask.model.response.CreateAccountResponse;
 import com.example.nntask.model.response.GetAccountResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.nntask.repository.AccountRepository;
@@ -13,11 +14,13 @@ import com.example.nntask.repository.AccountRepository;
 import java.math.BigDecimal;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
 
-    private static final String PLN = "PLN";
+    @Value("${conversion.base-currency}")
+    private String baseCurrencyCode;
 
     @Value("${wallets.supported-currencies}")
     private String supportedCurrencies;
@@ -35,11 +38,12 @@ public class AccountService {
         Arrays.stream(supportedCurrencies.split(",")).forEach(c -> {
             account.getWallets().add(walletService.buildWallet(
                     Currency.getInstance(c),
-                    c.equals(PLN) ? request.getInitialBalance() : BigDecimal.ZERO,
+                    c.equals(baseCurrencyCode) ? request.getInitialBalance() : BigDecimal.ZERO,
                     account
             ));
         });
         accountRepository.save(account);
+        log.info("Account {} created, with {} walelts", account.getId(), account.getWallets().size());
 
         return new CreateAccountResponse(
                 account.getId(),

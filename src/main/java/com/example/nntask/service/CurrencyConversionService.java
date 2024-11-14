@@ -17,7 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CurrencyConversionService {
 
-    private static final String PLN = "PLN";
+    @Value("${conversion.base-currency}")
+    private String baseCurrencyCode;
 
     @Value("${wallets.supported-currencies}")
     private String supportedCurrencies;
@@ -29,14 +30,15 @@ public class CurrencyConversionService {
 
     public GetAccountResponse convertCurrency(ConvertCurrencyRequest req) {
 
-        boolean isPlnOrigin = req.getOriginCurrency().equals(PLN);
-        String otherCurrencyCode = isPlnOrigin ? req.getTargetCurrency() : req.getOriginCurrency();
+        boolean isBaseCurrencyOrigin = req.getOriginCurrency().equals(baseCurrencyCode);
+        String otherCurrencyCode = isBaseCurrencyOrigin ? req.getTargetCurrency() : req.getOriginCurrency();
 
         if(!isOriginAmountValid(req)) {
             throw new CurrencyConversionException("Origin amount invalid");
         }
-        if(!isExactlyOneCurrencyPLN(req)) {
-            throw new CurrencyConversionException("Incorrect currency pair, exactly one of the currencies needs to be PLN");
+        if(!isExactlyOneCurrencyBase(req)) {
+            throw new CurrencyConversionException(
+                    String.format("Incorrect currency pair, exactly one of the currencies needs to be %s", baseCurrencyCode));
         }
         if(!isSupportedCurrency(otherCurrencyCode)) {
             throw new CurrencyConversionException(
@@ -44,9 +46,9 @@ public class CurrencyConversionService {
         }
 
         Account account = accountService.findAccount(req.getAccountId());
-        Wallet plnWallet = chooseWalletByCurrency(account, PLN);
+        Wallet baseCurrencyWallet = chooseWalletByCurrency(account, baseCurrencyCode);
         Wallet otherWallet = chooseWalletByCurrency(account, otherCurrencyCode);
-        walletTransactionService.moveWalletsFunds(plnWallet, otherWallet, req);
+        walletTransactionService.moveWalletsFunds(baseCurrencyWallet, otherWallet, req);
 
         return accountService.mapAccountToGetAccountResponse(account);
     }
@@ -61,9 +63,9 @@ public class CurrencyConversionService {
                 .toList().getFirst();
     }
 
-    private boolean isExactlyOneCurrencyPLN(ConvertCurrencyRequest req) {
-        return (req.getOriginCurrency().equals(PLN) || req.getTargetCurrency().equals(PLN)) &&
-                !(req.getOriginCurrency().equals(PLN) && req.getTargetCurrency().equals(PLN));
+    private boolean isExactlyOneCurrencyBase(ConvertCurrencyRequest req) {
+        return (req.getOriginCurrency().equals(baseCurrencyCode) || req.getTargetCurrency().equals(baseCurrencyCode)) &&
+                !(req.getOriginCurrency().equals(baseCurrencyCode) && req.getTargetCurrency().equals(baseCurrencyCode));
     }
 
     private boolean isSupportedCurrency(String currencyCode) {

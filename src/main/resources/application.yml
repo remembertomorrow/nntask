@@ -10,3 +10,5 @@ spring:
 # Other
 wallets:
   supported-currencies: ${SUPPORTED_CURRENCIES:PLN,USD}
+conversion:
+  base-currency: ${BASE_CURRENCY:PLN}

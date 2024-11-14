@@ -1,48 +1,53 @@
 package com.example.nntask.service;
 
 import com.example.nntask.exception.CurrencyConversionException;
-import com.example.nntask.integration.NbpFeignClient;
+import com.example.nntask.integration.NbpCurrencyRateProviderClient;
 import com.example.nntask.model.entity.Wallet;
 import com.example.nntask.model.request.ConvertCurrencyRequest;
 import com.example.nntask.model.response.NbpExchangeRateResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WalletTransactionService {
 
-    private static final String PLN = "PLN";
-
-    private static final String NBP_BID_ASK_TABLE = "C";
+    @Value("${conversion.base-currency}")
+    private String baseCurrencyCode;
 
     private final WalletService walletService;
 
-    private final NbpFeignClient nbpFeignClient;
+    private final NbpCurrencyRateProviderClient nbpProvider;
 
 
     @Transactional
-    public void moveWalletsFunds(Wallet plnWallet, Wallet otherWallet, ConvertCurrencyRequest req) {
+    public void moveWalletsFunds(Wallet baseCurrencyWallet, Wallet otherWallet, ConvertCurrencyRequest req) {
 
-        boolean isPlnOrigin = req.getOriginCurrency().equals(PLN);
-        String otherCurrencyCode = isPlnOrigin ? req.getTargetCurrency() : req.getOriginCurrency();
+        boolean isBaseCurrencyOrigin = req.getOriginCurrency().equals(baseCurrencyCode);
+        String otherCurrencyCode = isBaseCurrencyOrigin ? req.getTargetCurrency() : req.getOriginCurrency();
         NbpExchangeRateResponse rate = getCurrencyRate(otherCurrencyCode);
 
-        Wallet originWallet = isPlnOrigin ? plnWallet : otherWallet;
-        Wallet targetWallet = isPlnOrigin ? otherWallet : plnWallet;
+        Wallet originWallet = isBaseCurrencyOrigin ? baseCurrencyWallet : otherWallet;
+        Wallet targetWallet = isBaseCurrencyOrigin ? otherWallet : baseCurrencyWallet;
 
         if(!isEnoughFundsInOrigin(originWallet, req)) {
             throw new CurrencyConversionException("Not enough funds in the origin currency wallet");
         }
 
+        log.info("Converting funds: {}, from: {} wallet to: {} wallet",
+                req.getOriginAmount(), req.getOriginCurrency(), req.getTargetCurrency());
+
         walletService.updateWalletBalance(
                 originWallet, originWallet.getAmount().subtract(req.getOriginAmount())
         );
-        BigDecimal amountToAdd = isPlnOrigin ?
+        BigDecimal amountToAdd = isBaseCurrencyOrigin ?
                 req.getOriginAmount().divide(BigDecimal.valueOf(rate.getRates().getFirst().getAsk()), 4, RoundingMode.HALF_EVEN) :
                         req.getOriginAmount().multiply(BigDecimal.valueOf(rate.getRates().getFirst().getBid()));
         walletService.updateWalletBalance(targetWallet, targetWallet.getAmount().add(amountToAdd));
@@ -51,7 +56,8 @@ public class WalletTransactionService {
 
 
     public NbpExchangeRateResponse getCurrencyRate(String currencyCode) {
-        NbpExchangeRateResponse rate = nbpFeignClient.getTodayExchangeRate(NBP_BID_ASK_TABLE, currencyCode);
+        NbpExchangeRateResponse rate = nbpProvider.getTodayExchangeRate(currencyCode);
+        log.info("Fetched currency rates response: {}", rate);
         if(rate == null || rate.getRates().isEmpty()) {
             throw new CurrencyConversionException("There was a problem fetching the currency rate");
         }

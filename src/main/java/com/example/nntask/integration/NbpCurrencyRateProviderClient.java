@@ -6,11 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "nbpFeignClient", url = "https://api.nbp.pl/api/exchangerates/rates")
-public interface NbpFeignClient {
+public interface NbpCurrencyRateProviderClient {
 
-    @GetMapping("/{table}/{code}/today/")
-    NbpExchangeRateResponse getTodayExchangeRate(
-            @PathVariable("table") String table, @PathVariable("code") String code
-    );
+    @GetMapping("/C/{code}/today/")
+    NbpExchangeRateResponse getTodayExchangeRate(@PathVariable("code") String code);
 
 }
