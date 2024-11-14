@@ -38,7 +38,7 @@ public class WalletService {
         return wallets.stream().map(w -> {
             WalletDto dto = new WalletDto();
             dto.setWalletId(w.getId());
-            dto.setWalletCurrency(w.getWalletCurrency());
+            dto.setWalletCurrency(w.getWalletCurrency().getCurrencyCode());
             dto.setAmount(w.getAmount());
             dto.setAccountId(w.getAccount().getId());
             return dto;

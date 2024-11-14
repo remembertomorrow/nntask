@@ -71,7 +71,7 @@ public class AccountService {
         response.setAccountId(account.getId());
         response.setFirstName(account.getFirstName());
         response.setLastName(account.getLastName());
-        response.setWallets(account.getWallets());
+        response.setWallets(walletService.mapWalletsToDtos(account.getWallets()));
         return response;
     }
 

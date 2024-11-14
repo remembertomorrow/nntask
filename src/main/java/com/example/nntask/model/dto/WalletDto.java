@@ -13,7 +13,7 @@ public class WalletDto {
 
     private UUID accountId;
 
-    private Currency walletCurrency;
+    private String walletCurrency;
 
     private BigDecimal amount;
 

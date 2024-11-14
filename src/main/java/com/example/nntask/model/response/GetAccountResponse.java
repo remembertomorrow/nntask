@@ -1,6 +1,6 @@
 package com.example.nntask.model.response;
 
-import com.example.nntask.model.entity.Wallet;
+import com.example.nntask.model.dto.WalletDto;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -16,6 +16,6 @@ public class GetAccountResponse {
 
     private String lastName;
 
-    private List<Wallet> wallets = new ArrayList<>();
+    private List<WalletDto> wallets = new ArrayList<>();
 
 }
